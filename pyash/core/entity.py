@@ -105,9 +105,9 @@ class Entity(object):
 		return self.index
 
 	def __eq__(self, other):
-		if self is obj:
+		if self is other:
 			return True
-		if obj == None:
+		if other == None:
 			return False
 		if not issubclass(other, Entity):
 			return False

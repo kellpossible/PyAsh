@@ -1,4 +1,5 @@
 from pyash.signals import Listener, Signal
+import six
 
 class Engine(object):
 	"""The heart of the Entity framework. It is responsible for keeping track of Entity
@@ -21,7 +22,7 @@ class Engine(object):
 		self.systems = []
 
 		#a hashmap that organises EntitySystem's by class for easy retrieval
-		sel.systems_by_class = {}
+		self.systems_by_class = {}
 
 		#a hashmap that organises all entities into family buckets
 		self.families = {}
@@ -41,11 +42,13 @@ class Engine(object):
 		#a listener for the engine that's called every time a component is removed
 		self.component_removed_listener = Listener(lambda signal, obj: self.component_removed(obj))
 
+	def get_entities(self):
+		return self.entities
 
 	def add_entity(self, entity):
 		self.entities.append(entity)
 
-		for family, family_entities in self.families.iteritems():
+		for family, family_entities in six.iteritems(self.families):
 			if family.matches(entity):
 				family_entities.append(entity)
 				entity.get_family_bits().set(family.get_index())
@@ -54,7 +57,7 @@ class Engine(object):
 		entity.component_removed.append(self.component_removed_listener)
 
 		self.notifying = True
-		for eentity_listener in self.entity_listeners:
+		for entity_listener in self.entity_listeners:
 			entity_listener.entity_added(entity)
 		self.notifying = False
 		self.remove_pending_listeners()
@@ -63,14 +66,14 @@ class Engine(object):
 		self.entities.remove(entity)
 
 		if not entity.get_family_bits().is_empty():
-			for family, family_entites in self.families.iteritems():
+			for family, family_entites in six.iteritems(self.families):
 				if family.matches(entity):
 					family_entries.remove(entity)
 					entity.get_family_bits().clear(family.get_index())
 
 
 		entity.component_added.remove(self.component_added_listener)
-		entity.component_removed.remove(self.component_added_listener)
+		entity.component_removed.remove(self.component_removed_listener)
 
 		self.notifying = True
 		for entity_listener in self.entity_listeners:
@@ -81,7 +84,7 @@ class Engine(object):
 
 	def remove_all_entities(self):
 		while len(self.entities) > 0:
-			self.remove_entity(entities[0])
+			self.remove_entity(self.entities[0])
 
 	def add_system(self, system):
 		system_class = system.__class__
