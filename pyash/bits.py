@@ -50,14 +50,13 @@ class Bits(object):
 
 	def getAndSet(self, index):
 		word, local_index = self.get_word_indices(index)
-		self.check_capacity(word)
+		self.check_capacity(word + 1)
 		old_bits = self.bits[word]
 		self.bits[word] |= 1 << (local_index & self.n_bits_mask)
 		return self.bits[word] == old_bits
 
 	def set(self, index):
 		word, local_index = self.get_word_indices(index)
-		print(word + 1)
 		self.check_capacity(word + 1)
 		self.bits[word] |= 1 << (local_index & self.n_bits_mask)
 
@@ -99,12 +98,12 @@ class Bits(object):
 
 		word += 1
 		while word < bits_length:
-			if word != 0:
-				bits_at_word = self.bits[word]
-				if bits_at_word != 0:
-					for i in range(self.n_bits_mask+1):
-						if (bits_at_word & (1 << (i & self.n_bits_mask))) != 0:
-							return (word << self.word_size) + i
+			bits_at_word = self.bits[word]
+
+			if bits_at_word != 0:
+				for i in range(self.n_bits_mask+1):
+					if (bits_at_word & (1 << (i & self.n_bits_mask))) != 0:
+						return (word << self.word_size) + i - word
 			
 			word += 1
 		
@@ -128,7 +127,7 @@ class Bits(object):
 				bit = self.n_bits_mask
 				while bit >= 0:
 					if (bits_at_word & (1 << (bit & self.n_bits_mask))) != 0:
-						return (word << self.word_size) + bit
+						return (word << self.word_size) + bit - word
 
 					bit -= 1
 			word -= 1
@@ -243,21 +242,3 @@ class Bits(object):
 			if word_break:
 				s += " "
 		return s
-
-
-if __name__ == '__main__':
-	b = Bits(128)
-	#print(b)
-	#b.set(0)
-	b.set(1)
-	b.set(20)
-	#b.set(0)
-	print(b)
-
-	b2 = Bits()
-	b2.set(0)
-
-	b3 = b2.logic_or(b)
-	print(b3)
-	print(b3.next_set_bit(3))
-	#print(b)
