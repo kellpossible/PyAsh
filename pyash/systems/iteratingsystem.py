@@ -18,24 +18,24 @@ class IteratingSystem(EntitySystem):
 		#entities used by this system
 		self.entities = []
 
-		def added_to_engine(self, engine):
-			self.entities = engine.get_entities_for(self.family)
+	def added_to_engine(self, engine):
+		self.entities = engine.get_entities_for(self.family)
 
 
-		def removed_from_engine(self):
-			self.entities[:] = []
+	def removed_from_engine(self):
+		self.entities[:] = []
 
 
-		def update(self, deltatime):
-			i = 0
-			while i < len(self.entities):
-				self.process_entity(self.entities[i], deltatime)
-				i+=1
+	def update(self, deltatime):
+		i = 0
+		while i < len(self.entities):
+			self.process_entity(self.entities[i], deltatime)
+			i+=1
 
 
-		def process_entity(self, entity, deltatime):
-			"""This method is called on every entity on every update call of the EntitySystem.
-			Override this to implement your system's specific processing.
-			entity: the current entity being processed.
-			delstatime: the delta time between the last and current frame"""
-			pass
+	def process_entity(self, entity, deltatime):
+		"""This method is called on every entity on every update call of the EntitySystem.
+		Override this to implement your system's specific processing.
+		entity: the current entity being processed.
+		delstatime: the delta time between the last and current frame"""
+		pass
