@@ -2,15 +2,60 @@ import unittest
 from pyash.core.engine import Engine
 from pyash.core.entity import Entity
 from pyash.core.entitylistener import EntityListener
+from pyash.signals import Listener
+from pyash.core.component import Component
+from pyash.core.componenttype import ComponentType
+from pyash.core.family import Family
+from pyash.bits import Bits
 
 ENTITY_ADDED = None
 ENTITY_REMOVED = None
+COMPONENT_ADDED = None
+COMPONENT_REMOVED = None
+
+
+class VelocityComponent(Component):
+	def __init__(self, x=0, y=0, z=0):
+		self.x = x
+		self.y = y
+		self.z = z
+
+	def __repr__(self):
+		return "Velocity (x:{0} y:{1} z:{2})".format(self.x, self.y, self.z)
+
+class PositionComponent(Component):
+	def __init__(self, x=0, y=0, z=0):
+		self.x = x
+		self.y = y
+		self.z = z
+
+	def __repr__(self):
+		return "Position (x:{0} y:{1} z:{2})".format(self.x, self.y, self.z)
+
+class StaticComponent(Component):
+	pass
+
+def reset_component_listener_test():
+	global COMPONENT_REMOVED
+	global COMPONENT_ADDED
+	COMPONENT_ADDED = None
+	COMPONENT_REMOVED = None
 
 def reset_entity_listener_test():
 	global ENTITY_ADDED
 	global ENTITY_REMOVED
 	ENTITY_ADDED = None
 	ENTITY_REMOVED = None
+
+class TestComponentAddedListener(Listener):
+	def receive(self, signal, obj):
+		global COMPONENT_ADDED
+		COMPONENT_ADDED = obj
+
+class TestComponentRemovedListener(Listener):
+	def receive(self, signal, obj):
+		global COMPONENT_REMOVED
+		COMPONENT_REMOVED = obj
 
 class TestEntityListener(EntityListener):
 	def entity_added(self, entity):
@@ -26,6 +71,7 @@ class EngineTest(unittest.TestCase):
 		global ENTITY_ADDED
 		global ENTITY_REMOVED
 
+		Engine.reset_indices()
 		engine = Engine()
 		engine.add_entity_listener(TestEntityListener())
 		e1 = Entity()
@@ -42,6 +88,7 @@ class EngineTest(unittest.TestCase):
 		global ENTITY_ADDED
 		global ENTITY_REMOVED
 
+		Engine.reset_indices()
 		engine = Engine()
 		engine.add_entity_listener(TestEntityListener())
 		e1 = Entity()
@@ -61,6 +108,29 @@ class EngineTest(unittest.TestCase):
 		entities = engine.get_entities()
 		self.assertEqual(len(entities), 0)
 
+
+	def test_component(self):
+		global COMPONENT_REMOVED
+		global COMPONENT_ADDED
+
+		Engine.reset_indices()
+		engine = Engine()
+		e1 = Entity()
+		c = VelocityComponent()
+		e1.component_added.append(TestComponentAddedListener())
+		e1.component_removed.append(TestComponentRemovedListener())
+		engine.add_entity(e1)
+		e1.add(c)
+		self.assertEqual(COMPONENT_ADDED, e1)
+		reset_component_listener_test()
+
+		family = Family.get_for_bits(ComponentType.get_bits_for(VelocityComponent))
+		entities = engine.get_entities_for(family)
+		self.assertEqual(entities[0], e1)
+
+		e1.remove(VelocityComponent)
+		self.assertEqual(COMPONENT_REMOVED, e1)
+		reset_component_listener_test()
 
 if __name__ == '__main__':
 	unittest.main()

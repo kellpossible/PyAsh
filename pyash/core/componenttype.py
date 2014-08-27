@@ -30,16 +30,18 @@ class ComponentType(object):
 			cls.component_classes[component_class] = ct
 			return ct
 
-	def get_index_for(self, component_class):
-		return self.get_for(component_class).get_index()
+	@classmethod
+	def get_index_for(cls, component_class):
+		return cls.get_for(component_class).get_index()
 
-	def get_bits_for(self, *component_classes):
+	@classmethod
+	def get_bits_for(cls, *component_classes):
 		"""return bits representing the collection of components for quick
 		comparison and matching. See Family get_for(bits, bits, bits)"""
 		bits = Bits()
 		type_classes_length = len(component_classes)
 		for i in range(type_classes_length):
-			bits.set(ComponentType.get_index_for(component_classes))
+			bits.set(cls.get_index_for(component_classes[i]))
 
 		return bits
 

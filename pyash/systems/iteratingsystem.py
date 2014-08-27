@@ -1,4 +1,4 @@
-from pyash.core.EntitySystem import EntitySystem
+from pyash.core.entitysystem import EntitySystem
 
 class IteratingSystem(EntitySystem):
 	"""A simple EntitySystem that iterates over each entity and calls process_entity()

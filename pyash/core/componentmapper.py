@@ -1,19 +1,19 @@
-from ComponentType import ComponentType
+from pyash.core.componenttype import ComponentType
 
 #not really sure if I need this...
 
 class ComponentMapper(object):
 	"""Provides super fast Component retrieval from Entity objects"""
 	def __init__(self, component_class):
-		self.component_class = ComponentType.get_for(component_class)
+		self.component_type = ComponentType.get_for(component_class)
 
 	def get(self, entity):
 		"""returns the Component of the specified class belonging to entity"""
-		return entity.get_component(self.component_class)
+		return entity.get_component(self.component_type)
 
 	def has(self, entity):
 		"""returns whether or not the entity has the component of the specified class"""
-		return entity.has_component(self.component_class)
+		return entity.has_component(self.component_type)
 
 	@classmethod
 	def get_for(cls, component_class):

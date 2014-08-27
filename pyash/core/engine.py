@@ -1,4 +1,6 @@
 from pyash.signals import Listener, Signal
+from pyash.core.componenttype import ComponentType
+from pyash.core.entity import Entity
 import six
 
 class Engine(object):
@@ -13,6 +15,11 @@ class Engine(object):
 	- update the main loop
 	- register/unregister EntityListener objects
 	"""
+
+	@staticmethod
+	def reset_indices():
+		ComponentType.next_index = 0
+		Entity.next_index = 0
 
 	def __init__(self):
 		#an unordered array that holds all the entities in the Engine
@@ -89,7 +96,7 @@ class Engine(object):
 	def add_system(self, system):
 		system_class = system.__class__
 		if not (system_class in self.systems_by_class):
-			self.systems.add(system)
+			self.systems.append(system)
 			self.systems_by_class[system_class] = system
 			system.added_to_engine(self)
 			#self.systems.sort(comparator)
@@ -107,9 +114,8 @@ class Engine(object):
 		"""returns a collection of entities for the specified Family.
 		will return the same instance every time"""
 
-		entities = self.families[family]
 
-		if entities is None:
+		if family not in self.families:
 			entities = []
 			for entity in self.entities:
 				if family.matches(entity):
@@ -117,8 +123,9 @@ class Engine(object):
 					entity.get_family_bits().set(family.get_index())
 
 			self.families[family] = entities
-
-		return entities
+			return entities
+		else:
+			return self.families[family]
 
 
 	def add_entity_listener(self, entity_listener):
@@ -137,19 +144,19 @@ class Engine(object):
 		"""updates all the systems in this engine.
 		deltatime: time passed since last frame."""
 
-		for i in range(len(systems)):
-			if systems[i].check_processing():
-				systems[i].update(deltatime)
+		for i in range(len(self.systems)):
+			if self.systems[i].check_processing():
+				self.systems[i].update(deltatime)
 
 	def component_added(self, entity):
-		for family, family_entites in self.families.iteritems():
+		for family, family_entites in six.iteritems(self.families):
 			if not (entity.get_family_bits().get(family.get_index())):
 				if family.matches(entity):
 					family_entites.append(entity)
 					entity.get_family_bits().set(family.get_index())
 
 	def component_removed(self, entity):
-		for family, family_entites in self.families.iteritems():
+		for family, family_entites in six.iteritems(self.families):
 			if entity.get_family_bits().get(family.get_index()):
 				if not family.matches(entity):
 					family_entites.remove(entity)

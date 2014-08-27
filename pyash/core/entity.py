@@ -1,4 +1,5 @@
 from pyash.signals import Signal, Listener
+from pyash.core.componenttype import ComponentType
 from pyash.bits import Bits
 
 class Entity(object):
@@ -47,12 +48,12 @@ class Entity(object):
 		being processed by"""
 		return self.family_bits
 
-	def get_component(component_type):
+	def get_component(self, component_type):
 		"""return the Component object for the specified class. None if the Entity
 		does not have any components for that class"""
 		component_type_index = component_type.get_index()
 		if component_type_index < len(self.components):
-			return self.components[component_class.get_index()]
+			return self.components[component_type.get_index()]
 		else:
 			return None
 
@@ -86,7 +87,7 @@ class Entity(object):
 		"""Removes the Componenet of the specified type. Since there is only
 		ever one component of one type, we don't need an instance reference.
 		returns the removed component"""
-		component_class_index = ComponentType.get_index_for(componenet_class)
+		component_class_index = ComponentType.get_index_for(component_class)
 		remove_component = self.components[component_class_index]
 
 		if remove_component != None:
@@ -109,7 +110,7 @@ class Entity(object):
 			return True
 		if other == None:
 			return False
-		if not issubclass(other, Entity):
+		if not issubclass(other.__class__, Entity):
 			return False
 
 		return self.index == other.index

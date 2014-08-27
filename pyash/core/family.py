@@ -1,5 +1,6 @@
-from signals import Signal, Listener
-from bits import Bits
+from pyash.signals import Signal, Listener
+from pyash.bits import Bits
+from pyash.core.componenttype import ComponentType
 
 class Family(object):
 	"""Represents a group of Components. It is used to describe what Entity objects
@@ -15,7 +16,7 @@ class Family(object):
 
 	#hashmap holding all the families
 	families = {}
-	def __init__(self, bits_all, bits_one, bits_exclude):
+	def __init__(self, bits_all=Bits(), bits_one=Bits(), bits_exclude=Bits()):
 		"""Private constructor, don't use this.
 		Use Family.getFamilyFor() instead"""
 
@@ -45,7 +46,7 @@ class Family(object):
 			return False
 
 		i = self.bits_all.next_set_bit(0)
-		while i >= 0:
+		while i is not None:
 			if not entity_component_bits.get(i):
 				return False
 
@@ -60,13 +61,18 @@ class Family(object):
 		return True
 
 	@classmethod
-	def getFor(cls, bits_all, bits_one, bits_exclude):
+	def get_for_classes(cls, *component_classes):
 		"""returns a family with the passed Component classes as a descriptor.
-		each set of component types will always return the same family instance.
+		each set of component types will always return the same family instance."""
 
-		bits_all: all entities will have to contain all of the components in the set
+		return cls.get_for_bits(ComponentType.get_bits_for(*component_classes), Bits(), Bits())
+
+	@classmethod
+	def get_for_bits(cls, bits_all=Bits(), bits_one=Bits(), bits_exclude=Bits()):
+		"""bits_all: all entities will have to contain all of the components in the set
 		bits_one: entities will have to contain at least one of the components in the set
 		bits_exclude: entities cannot contain nay of the components in the set"""
+
 		family_hash = cls.get_family_hash(bits_all, bits_one, bits_exclude)
 		if family_hash in cls.families:
 			return cls.families[family_hash]
@@ -134,3 +140,30 @@ class Family(object):
 
 	def __ne__(self, other):
 		return not self.__eq__(other)
+
+
+	def __hash__(self):
+		prime = 31
+		result = 1
+		hash_val = 0
+		if self.bits_all is not None:
+			hash_val = hash(self.bits_all)
+		else:
+			hash_val = 0
+		result = prime * result + hash_val
+
+		if self.bits_one is not None:
+			hash_val = hash(self.bits_one)
+		else:
+			hash_val = 0
+
+		result = prime * result + hash_val
+
+		if self.bits_exclude is not None:
+			hash_val = hash(self.bits_exclude)
+		else:
+			hash_val = 0
+
+		result = prime * result + hash_val
+
+		return result
