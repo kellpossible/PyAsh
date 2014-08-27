@@ -242,3 +242,7 @@ class Bits(object):
 			if word_break:
 				s += " "
 		return s
+
+
+	def __hash__(self):
+		return hash(tuple(self.bits))
