@@ -1,9 +1,11 @@
+import six
+
 class Pool(object):
 	"""a pool of objects that can be reused to avoid allocation.
 	Objects used in this pool need to implement a reset method,
 	to reset the object for reuse. This should set the object refs
 	to None, and fields to default values."""
-	def __init__(self, initial_capacity=16, max_capacity=sys.maxint):
+	def __init__(self, initial_capacity=16, max_capacity=six.MAXSIZE):
 		self.free_objects = []
 
 		#maximum number of objects that will be pooled
@@ -22,7 +24,7 @@ class Pool(object):
 	def obtain(self):
 		"""Returns an object from this pool. The object may be new (from new_object) or
 		reused (previously free(obj) freed)"""
-		if len(free_objects) == 0:
+		if len(self.free_objects) == 0:
 			return self.new_object()
 		else:
 			return self.free_objects.pop()
@@ -52,7 +54,7 @@ class Pool(object):
 				self.free_objects.append(obj)
 				obj.reset()
 
-			self.peak = max(peak, len(self.free_objects))
+			self.peak = max(self.peak, len(self.free_objects))
 
 
 	def clear(self):
