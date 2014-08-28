@@ -2,10 +2,10 @@ from pyash.core.entity import Entity
 from pyash.utils.reflectionpool import ReflectionPool
 from pyash.utils.pool import Pool
 from pyash.core.engine import Engine
-import sys
+import six
 
 class ComponentPools(object):
-	def __init__(self, initial_size=0, max_size=0):
+	def __init__(self, initial_size=15, max_size=six.MAXSIZE):
 		self.pools = {}
 		self.initial_size = initial_size
 		self.max_size = max_size
@@ -49,7 +49,7 @@ class PooledEntity(Entity):
 class EntityPool(Pool):
 	def __init__(self, component_pools, 
 		initial_capacity=16, 
-		max_capacity=sys.maxint):
+		max_capacity=six.MAXSIZE):
 		super(EntityPool, self).__init__(initial_capacity, max_capacity)
 		self.component_pools = component_pools
 
