@@ -32,7 +32,7 @@ setup(
 	install_requires=[],
 	description='Port of the Ashley Framework to Python',
 	long_description=long_description,
-	packages=['pyash', 'pyash.core', 'pyash.systems'],
+	packages=['pyash', 'pyash.core', 'pyash.systems', 'pyash.utils'],
 	include_package_date=True,
 	platforms='any',
 	classifiers=[
