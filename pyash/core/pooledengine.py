@@ -72,6 +72,10 @@ class PooledEngine(Engine):
 			entity_pool_initial_size, 
 			entity_pool_max_size)
 
+		def clear_pools(self):
+			self.entity_pool.clear()
+			self.component_pools.clear()
+
 
 		def create_entity(self):
 			"""return clean entity from the engine pool.

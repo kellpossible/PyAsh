@@ -34,8 +34,8 @@ class Entity(object):
 		self.index = Entity.next_index
 		Entity.next_index += 1
 
-
-
+	def get_component_by_class(self, component_class):
+		return self.get_component(ComponentType.get_for(component_class))
 	def get_components(self):
 		return self.components_array
 
