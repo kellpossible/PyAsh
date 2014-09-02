@@ -20,6 +20,33 @@ class TestListener(Listener):
 		SIGNAL_RECIEVED = signal
 		OBJECT_RECIEVED = obj
 
+class RemoveWhileDispatchListenerMock(Listener):
+	def __init__(self):
+		super(RemoveWhileDispatchListenerMock, self).__init__()
+		self.count = 0
+
+	def receive(self, signal, obj):
+		self.count += 1
+		signal.remove(self)
+
+
+class ListenerMock(Listener):
+	def __init__(self):
+		super(ListenerMock, self).__init__()
+		self.count = 0
+
+	def receive(self, signal, obj):
+		self.count += 1
+
+		if signal is None:
+			raise Error()
+
+		if obj is None:
+			raise Error()
+
+class Dummy(object):
+	pass
+
 class SignalsTest(unittest.TestCase):
 	def test_signal_class(self):
 		global SIGNAL_RECIEVED
@@ -53,6 +80,20 @@ class SignalsTest(unittest.TestCase):
 		self.assertEqual(OBJECT_RECIEVED, 10)
 
 		reset_recieved()
+
+	def test_signal_remove_while_dispatch(self):
+		signal = Signal()
+		dummy = Dummy()
+		listenerA = RemoveWhileDispatchListenerMock()
+		listenerB = ListenerMock()
+
+		signal.append(listenerA)
+		signal.append(listenerB)
+		
+		signal(dummy)
+
+		self.assertEqual(listenerA.count, 1)
+		self.assertEqual(listenerB.count, 1)
 
 
 	def assign(self, s, o):

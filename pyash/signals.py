@@ -1,6 +1,7 @@
 from types import FunctionType, LambdaType
+from pyash.snapshotarray import SnapshotArray
 
-class Signal(list):
+class Signal(SnapshotArray):
     """Event subscription.
 
     A list of callable objects. Calling an instance of this will cause a
@@ -28,8 +29,10 @@ class Signal(list):
 
     """
     def __call__(self, obj):
-        for l in self:
+        items = self.begin()
+        for l in items:
             l.receive(self, obj)
+        self.end()
 
     def __repr__(self):
         return "Event({0})".format(list.__repr__(self))
