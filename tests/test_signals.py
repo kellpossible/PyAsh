@@ -89,11 +89,15 @@ class SignalsTest(unittest.TestCase):
 
 		signal.append(listenerA)
 		signal.append(listenerB)
-		
+
+		self.assertEqual(len(signal), 2)
+
 		signal(dummy)
 
 		self.assertEqual(listenerA.count, 1)
 		self.assertEqual(listenerB.count, 1)
+
+		self.assertEqual(len(signal), 1)
 
 
 	def assign(self, s, o):
